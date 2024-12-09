@@ -32,8 +32,11 @@ public class AiResultController {
             String recordIdx = resultDto.getRecordIdx(); // 기록 식별
             String result = resultDto.getResult(); // AI 결과값
 
+            Boolean isHuman = resultDto.getIsHuman();
+            String text = isHuman ? resultDto.getText() : null; // isHuman일 경우에만 text 값 저장
+
             // Record 업데이트
-            if (!recordService.updateRecordWithAIResult(recordIdx, result)) {
+            if (!recordService.updateRecordWithAIResult(recordIdx, result, isHuman, text)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Record with recordIdx " + recordIdx + " not found.");
             }
 
