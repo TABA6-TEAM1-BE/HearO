@@ -37,4 +37,4 @@ out/
 .vscode/
 application.yml
 taba-firebase-adminsdk.json
-google-service.json
+google-services.json
