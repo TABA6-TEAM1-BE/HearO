@@ -35,7 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
-
 application.yml
 taba-firebase-adminsdk.json
 google-services.json
