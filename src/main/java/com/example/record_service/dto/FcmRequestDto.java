@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class FcmRequestDto {
-    private String deviceToken;
+    private String fcmToken;
 
     private String title;
 

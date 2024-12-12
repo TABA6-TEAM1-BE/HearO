@@ -49,7 +49,7 @@ public class AiResultController {
             String userIdx = optionalRecord.get().getUserIdx();
 
             // RedisMember 에서 userIdx 로 deviceToken 조회
-            String deviceToken = userServiceClient.getMemberByUserIdx(userIdx).getBody().getDeviceToken();
+            String deviceToken = userServiceClient.getMemberByUserIdx(userIdx).getBody().getFcmToken();
             log.info("User Device Token: {}", deviceToken);
             if (deviceToken == null || deviceToken.isEmpty()) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User DeviceToken is not found");
