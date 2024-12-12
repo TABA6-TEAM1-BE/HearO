@@ -1,6 +1,5 @@
 package com.example.record_service.service;
 
-import com.example.record_service.dto.AiResultDto;
 import com.example.record_service.dto.FcmRequestDto;
 import com.example.record_service.repository.UserServiceClient;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -22,7 +21,7 @@ public class FcmRequestService {
             Message message = Message.builder()
                     .putData("title", requestDto.getTitle())
                     .putData("body", requestDto.getBody())
-                    .setToken(requestDto.getDeviceToken()) // 대상 디바이스 토큰 설정
+                    .setToken(requestDto.getFcmToken()) // 대상 디바이스 토큰 설정
                     .build();
 
             // 메시지 전송
