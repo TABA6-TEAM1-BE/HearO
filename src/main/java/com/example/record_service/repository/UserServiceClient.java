@@ -11,4 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 public interface UserServiceClient {
     @GetMapping("/members/auth/{id}")
     ResponseEntity<RedisMember> getMemberById(@PathVariable("id") String id);
+
+    @GetMapping("/members/auth/idx/{userIdx}")
+    ResponseEntity<RedisMember> getMemberByUserIdx(@PathVariable("userIdx") String userIdx);
 }

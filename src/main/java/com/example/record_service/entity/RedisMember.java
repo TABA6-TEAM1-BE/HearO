@@ -15,6 +15,8 @@ public class RedisMember {
 
     private String username; // 사용자 이름
 
+    private String deviceToken;
+
     public RedisMember(String idx, String username) {
         this.idx = idx;
         this.username = username;
