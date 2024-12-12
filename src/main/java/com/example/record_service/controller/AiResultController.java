@@ -29,7 +29,6 @@ public class AiResultController {
     private final UserServiceClient userServiceClient;
     private final FcmRequestService fcmRequestService;
 
-
     // Ai 모델에게서 해당 HTTP 요청을 보내서 결과값 받아옴
     @PostMapping("/results")
     public ResponseEntity<?> receiveAIResult(@RequestBody AiResultDto resultDto) {
