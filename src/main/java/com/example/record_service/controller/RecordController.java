@@ -4,7 +4,10 @@ import com.example.record_service.entity.Record;
 import com.example.record_service.repository.UserServiceClient;
 import com.example.record_service.service.AuthService;
 import com.example.record_service.service.RecordService;
+<<<<<<< HEAD
 import feign.Feign;
+=======
+>>>>>>> refs/remotes/origin/develope
 import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -76,6 +79,9 @@ public class RecordController {
             // 미확인 Record 조회
             log.info("{}", recordService.getUncheckedRecordsByUsername(userIdx));
             return recordService.getUncheckedRecordsByUsername(userIdx);
+        } catch (FeignException.Unauthorized e){
+            log.info("Unauthorized: no info in redis session");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("unauthorized");
         } catch (Exception e) {
             log.error("Error retrieving unchecked records: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while retrieving unchecked records.");
@@ -95,6 +101,9 @@ public class RecordController {
 
             // Record 조회
             return recordService.getRecordsByDeviceTypeAndDate(userIdx, deviceType, date);
+        } catch (FeignException.Unauthorized e){
+            log.info("Unauthorized: no info in redis session");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("unauthorized");
         } catch (Exception e) {
             log.error("Error retrieving records by device type and date: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while retrieving records.");
@@ -109,6 +118,7 @@ public class RecordController {
         try {   // Redis 에서 userIdx 조회.
             String userIdx = userServiceClient.getMemberById(idx).getBody().getIdx();
             Optional<Record> foundRecord = recordService.getRecordByRecordIdx(recordIdx);
+
             if(foundRecord.isPresent()) {
                 if(foundRecord.get().getUserIdx().equals(userIdx)) {
                     // Record 상태 업데이트
@@ -128,6 +138,7 @@ public class RecordController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the record status.");
         }
     }
+
 
     /*
     private ResponseEntity<?> validateUserAndHandleErrors(String idx) {
