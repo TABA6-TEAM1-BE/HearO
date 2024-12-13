@@ -123,18 +123,18 @@ public class RecordService {
         }
     }
 
-    // 주어진 날짜에서 deviceType 별로 Record 반환
-    public ResponseEntity<?> getRecordsByDeviceTypeAndDate(String userIdx, String deviceType, LocalDate date) {
+    // 주어진 날짜의 Record 반환
+    public ResponseEntity<?> getRecordsByDeviceTypeAndDate(String userIdx, LocalDate date) {
         try {
             // 날짜의 시작 시간과 종료 시간 계산
             LocalDateTime startDate = date.atStartOfDay(); // 00:00:00
             LocalDateTime endDate = startDate.plusDays(1); // 다음 날 00:00:00
 
-            List<Record> records = recordRepository.findAllByUserIdxAndDeviceTypeAndTimeBetween(userIdx, deviceType, startDate, endDate);
+            List<Record> records = recordRepository.findAllByUserIdxAndTimeBetween(userIdx, startDate, endDate);
             log.info("Records by deviceType and date: {}", records);
 
             if (records.isEmpty()) {
-                return ResponseEntity.status(404).body("요청 실패: " + deviceType + "에 대한 Record가 존재하지 않습니다. 날짜: " + date);
+                return ResponseEntity.status(404).body("요청 실패: " + date + "에 대한 Record가 존재하지 않습니다.");
             }
 
             return ResponseEntity.ok(records);
