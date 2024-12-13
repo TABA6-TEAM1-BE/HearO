@@ -84,9 +84,9 @@ public class RecordController {
         }
     }
 
-    // 해당 날짜의 deviceType 별로 Record 조회
-    @GetMapping("/device-type/{deviceType}/date")
-    public ResponseEntity<?> getRecordsByDeviceType(@RequestHeader("X-User-Idx") String idx, @PathVariable String deviceType, @RequestParam("date") String recordDate) {
+    // 해당 날짜의 Record 조회
+    @GetMapping("/device-type/date")
+    public ResponseEntity<?> getRecordsByDeviceType(@RequestHeader("X-User-Idx") String idx, @RequestParam("date") String recordDate) {
         log.info("[DeviceType] Received X-User-Sub header: {}", idx);
 
         try {   // Redis 에서 username 조회
@@ -96,7 +96,7 @@ public class RecordController {
             LocalDate date = LocalDate.parse(recordDate);
 
             // Record 조회
-            return recordService.getRecordsByDeviceTypeAndDate(userIdx, deviceType, date);
+            return recordService.getRecordsByDeviceTypeAndDate(userIdx, date);
         } catch (FeignException.Unauthorized e){
             log.info("Unauthorized: no info in redis session");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("unauthorized");
