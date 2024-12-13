@@ -6,6 +6,7 @@ import com.example.record_service.entity.Record;
 import com.example.record_service.repository.UserServiceClient;
 import com.example.record_service.service.FcmRequestService;
 import com.example.record_service.service.RecordService;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,7 @@ public class AiResultController {
 
     // Ai 모델에게서 해당 HTTP 요청을 보내서 결과값 받아옴
     @PostMapping("/results")
-    public ResponseEntity<?> receiveAIResult(@RequestBody AiResultDto resultDto) {
+    public ResponseEntity<String> receiveAIResult(@RequestBody AiResultDto resultDto) {
         try {
             String recordIdx = resultDto.getRecordIdx(); // 기록 식별
             String result = resultDto.getResult(); // AI 결과값
@@ -50,16 +51,24 @@ public class AiResultController {
             // RedisMember 에서 userIdx 로 deviceToken 조회
             String deviceToken = userServiceClient.getMemberByUserIdx(userIdx).getBody().getFcmToken();
             log.info("User Device Token: {}", deviceToken);
+            /*
             if (deviceToken == null || deviceToken.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User DeviceToken is not found");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User DeviceToken is not found");
             }
+             */
 
             // FcmRequestDto 생성
-            FcmRequestDto fcmRequest = new FcmRequestDto(
-                    deviceToken,
-                    "AI Result Notification",
-                    "Record ID: " + recordIdx + ", Result: " + result +", Text: " + text
-            );
+            FcmRequestDto fcmRequest = FcmRequestDto.builder()
+                    .fcmToken(deviceToken)
+                    .title("AI Result Notification")
+                    .body(FcmRequestDto.Body.builder()
+                            .recordIdx(recordIdx)
+                            .result(result)
+                            .isHuman(isHuman)
+                            .text(text)
+                            .build())
+                    .build();
+
             log.info("FCM Request: {}", fcmRequest);
 
             // FCM 메시지 전송
@@ -78,12 +87,12 @@ public class AiResultController {
             return ResponseEntity.ok("Message sent to WebSocket");
 
              */
-        } catch (RuntimeException e) {
-            log.error("Error: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        } catch (FeignException.Unauthorized e) {
+            log.error("Unauthorized: User DeviceToken is not found: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
         } catch (Exception e) {
-            log.error("Error while sending WebSocket message: {}", e.getMessage(), e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to send WebSocket message");
+            log.error("Error while sending Fcm message: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to send Fcm message");
         }
     }
 }

@@ -143,7 +143,7 @@ public class RecordService {
     }
 
     // 클라이언트가 알림 확인 시 checked 상태 업데이트
-    public ResponseEntity<?> updateCheckedStatus(String username, String id) {
+    public ResponseEntity<?> updateCheckedStatus(String id) {
         try {
             Optional<Record> recordOptional = recordRepository.findById(id);
 

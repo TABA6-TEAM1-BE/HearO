@@ -4,6 +4,7 @@ import com.example.record_service.entity.Record;
 import com.example.record_service.repository.UserServiceClient;
 import com.example.record_service.service.AuthService;
 import com.example.record_service.service.RecordService;
+import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDate;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -73,6 +75,9 @@ public class RecordController {
             // 미확인 Record 조회
             log.info("{}", recordService.getUncheckedRecordsByUsername(userIdx));
             return recordService.getUncheckedRecordsByUsername(userIdx);
+        } catch (FeignException.Unauthorized e){
+            log.info("Unauthorized: no info in redis session");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("unauthorized");
         } catch (Exception e) {
             log.error("Error retrieving unchecked records: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while retrieving unchecked records.");
@@ -92,6 +97,9 @@ public class RecordController {
 
             // Record 조회
             return recordService.getRecordsByDeviceTypeAndDate(userIdx, deviceType, date);
+        } catch (FeignException.Unauthorized e){
+            log.info("Unauthorized: no info in redis session");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("unauthorized");
         } catch (Exception e) {
             log.error("Error retrieving records by device type and date: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while retrieving records.");
@@ -99,20 +107,34 @@ public class RecordController {
     }
 
     // 클라이언트가 알림 확인 시 checked -> true 로 업데이트
-    @PatchMapping("/{id}/checked")
-    public ResponseEntity<?> updateCheckedStatus(@RequestHeader("X-User-Idx") String idx, @PathVariable String id) {
+    @PostMapping("/{recordIdx}/checked")
+    public ResponseEntity<?> updateCheckedStatus(@RequestHeader("X-User-Idx") String idx, @PathVariable("recordIdx") String recordIdx) {
         log.info("[Update Checked] Received X-User-Sub header: {}", idx);
 
-        try {   // Redis 에서 username 조회
-            String username = userServiceClient.getMemberById(idx).getBody().getUsername();
-
-            // Record 상태 업데이트
-            return recordService.updateCheckedStatus(username, id);
-        } catch (Exception e) {
-            log.error("Error updating checked status for id {}: {}", id, e.getMessage(), e);
+        try {   // Redis 에서 userIdx 조회.
+            String userIdx = userServiceClient.getMemberById(idx).getBody().getIdx();
+            Optional<Record> foundRecord = recordService.getRecordByRecordIdx(recordIdx);
+//            Optional<Record> recordByUserIdx = recordService.getRecordByUserIdx(userIdx);
+            if(foundRecord.isPresent()) {
+                if(foundRecord.get().getUserIdx().equals(userIdx)) {
+                    // Record 상태 업데이트
+                    return recordService.updateCheckedStatus(recordIdx);
+                }else{
+                    return ResponseEntity.status(HttpStatus.FORBIDDEN).body("you are not authorized to update this record.");
+                }
+            }else{
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Record not found.");
+            }
+        }catch (FeignException.Unauthorized e){
+            log.info("unauthorized: no info in redis session");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("unauthorized");
+        }
+        catch (Exception e) {
+            log.error("Error updating checked status for recordIdx {}: {}", recordIdx, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while updating the record status.");
         }
     }
+
 
     /*
     private ResponseEntity<?> validateUserAndHandleErrors(String idx) {
