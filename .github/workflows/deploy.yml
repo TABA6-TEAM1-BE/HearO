@@ -79,3 +79,4 @@ jobs:
             sudo docker-compose rm -fs record-service
             sudo docker-compose up -d record-service
             sudo docker image prune -f
+
