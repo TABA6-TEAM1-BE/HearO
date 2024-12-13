@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Data
 @NoArgsConstructor
 @Document(collection = "GPT_Response")
-public class OpenAiResponseDocument {
+public class OpenAiResult {
 
     @Id
     private String id;
