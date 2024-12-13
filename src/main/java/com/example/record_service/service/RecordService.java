@@ -76,7 +76,7 @@ public class RecordService {
 
 
     // ai 모델 -> 백앤드로 결과값 보내면 저장
-    public boolean updateRecordWithAIResult(String recordIdx, String result) {
+    public boolean updateRecordWithAIResult(String recordIdx, String result, boolean isHuman, String text) {
         Optional<Record> optionalRecord = recordRepository.findByRecordIdx(recordIdx);
 
         if (optionalRecord.isPresent()) {
@@ -85,6 +85,9 @@ public class RecordService {
             // 결과값과 결과 시간 업데이트
             record.setDeviceType(result);
             record.setResultTime(LocalDateTime.now());
+            if (isHuman) {
+                record.setText(text);
+            }
 
             recordRepository.save(record);
 
@@ -100,6 +103,8 @@ public class RecordService {
     public Optional<Record> getRecordByRecordIdx(String recordIdx) {
       return recordRepository.findByRecordIdx(recordIdx);
     };
+
+
 
     // checked 가 false 인 Record 반환
     public ResponseEntity<?> getUncheckedRecordsByUsername(String userIdx) {
@@ -140,9 +145,10 @@ public class RecordService {
     }
 
     // 클라이언트가 알림 확인 시 checked 상태 업데이트
-    public ResponseEntity<?> updateCheckedStatus(String username, String id) {
+    public ResponseEntity<?> updateCheckedStatus(String recordIdx) {
+
         try {
-            Optional<Record> recordOptional = recordRepository.findById(id);
+            Optional<Record> recordOptional = recordRepository.findByRecordIdx(recordIdx);
 
             if (recordOptional.isPresent()) {
                 Record record = recordOptional.get();
@@ -150,7 +156,7 @@ public class RecordService {
                 recordRepository.save(record);
                 return ResponseEntity.ok(record);
             }
-            return ResponseEntity.status(404).body("요청 실패: 해당 Record가 존재하지 않습니다.: " + id);
+            return ResponseEntity.status(404).body("요청 실패: 해당 Record가 존재하지 않습니다.: " + recordIdx);
         } catch (Exception e) {
             log.error("Error while updating checked status: {}", e.getMessage());
             return ResponseEntity.status(500).body("서버 에러: Checked 상태를 업데이트하는 중 문제가 발생했습니다.");

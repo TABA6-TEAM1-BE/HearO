@@ -41,6 +41,11 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+
+	// fcm
+	// implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.2.2'
+	implementation 'com.google.firebase:firebase-admin:8.1.0'
+	//implementation 'com.google.firebase:firebase-messaging:22.0.0'
 }
 
 dependencyManagement {
