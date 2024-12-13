@@ -4,6 +4,10 @@ import com.example.record_service.entity.Record;
 import com.example.record_service.repository.UserServiceClient;
 import com.example.record_service.service.AuthService;
 import com.example.record_service.service.RecordService;
+<<<<<<< HEAD
+import feign.Feign;
+=======
+>>>>>>> refs/remotes/origin/develope
 import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -114,7 +118,7 @@ public class RecordController {
         try {   // Redis 에서 userIdx 조회.
             String userIdx = userServiceClient.getMemberById(idx).getBody().getIdx();
             Optional<Record> foundRecord = recordService.getRecordByRecordIdx(recordIdx);
-//            Optional<Record> recordByUserIdx = recordService.getRecordByUserIdx(userIdx);
+
             if(foundRecord.isPresent()) {
                 if(foundRecord.get().getUserIdx().equals(userIdx)) {
                     // Record 상태 업데이트
