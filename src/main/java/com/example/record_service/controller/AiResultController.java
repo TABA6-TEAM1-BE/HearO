@@ -5,6 +5,7 @@ import com.example.record_service.dto.FcmRequestDto;
 import com.example.record_service.entity.Record;
 import com.example.record_service.repository.UserServiceClient;
 import com.example.record_service.service.FcmRequestService;
+import com.example.record_service.service.OpenAiService;
 import com.example.record_service.service.RecordService;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -29,6 +31,7 @@ public class AiResultController {
     private static final Logger log = LoggerFactory.getLogger(AiResultController.class);
     private final UserServiceClient userServiceClient;
     private final FcmRequestService fcmRequestService;
+    private final OpenAiService openAiService;
 
     // Ai 모델에게서 해당 HTTP 요청을 보내서 결과값 받아옴
     @PostMapping("/results")
@@ -39,6 +42,17 @@ public class AiResultController {
 
             Boolean isHuman = resultDto.getIsHuman();
             String text = isHuman ? resultDto.getText() : null; // isHuman일 경우에만 text 값 저장
+
+            // OpenAI 후처리 (isHuman 인 경우)
+            if (isHuman && text != null && !text.isEmpty()) {
+                Map<String, Object> aiResponse = openAiService.getChatResponse("Correct the following text for typos and context to korean: " + text).getBody();
+                if (aiResponse != null && aiResponse.containsKey("data")) {
+                    text = (String) aiResponse.get("data");
+                    log.info("Processed text from OpenAI: {}", text);
+                } else {
+                    log.warn("OpenAI response was null or did not contain data.");
+                }
+            }
 
             // Record 업데이트
             if (!recordService.updateRecordWithAIResult(recordIdx, result, isHuman, text)) {
