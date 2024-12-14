@@ -47,7 +47,7 @@ public class RecordService {
     }
 
     // 음성 -> 백엔드 -> AI 모델
-    public ResponseEntity<?> fileInput(String idx, MultipartFile file) {
+    public ResponseEntity<Record> fileInput(String idx, MultipartFile file) {
         try {
             // 자동 증가 recordIdx 생성
             long recordIdx = counterService.getNextRecordIdxSequence("record_idx");
@@ -70,7 +70,7 @@ public class RecordService {
             return ResponseEntity.ok(record);
         } catch (Exception e) {
             log.error("Unexpected error occurred while creating record for idx: {}", idx, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error: " + e.getMessage());
+            return ResponseEntity.internalServerError().build();
         }
     }
 
