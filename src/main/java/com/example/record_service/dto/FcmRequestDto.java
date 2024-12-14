@@ -11,17 +11,27 @@ import lombok.NoArgsConstructor;
 @Builder
 public class FcmRequestDto {
     private String fcmToken;
-    private String title;
-    private Body body;          // 중첩 클래스 Body 로 AiResultDto 를 포함시킴
+    private Notification notification;
+    private Data data;  // 클라이언트에 전달할 데이터
 
-    @Data
+    @lombok.Data
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class Body {
+    public static class Notification {
+        private String title;  // 알림 제목
+        private String body;   // 알림 본문
+    }
+
+    @lombok.Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Builder
+    public static class Data {
         private String recordIdx;
         private String result;
         private Boolean isHuman;
         private String text;
     }
 }
+
