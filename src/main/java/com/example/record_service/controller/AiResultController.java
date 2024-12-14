@@ -70,24 +70,21 @@ public class AiResultController {
             // RedisMember 에서 userIdx 로 deviceToken 조회
             String deviceToken = userServiceClient.getMemberByUserIdx(userIdx).getBody().getFcmToken();
             log.info("User Device Token: {}", deviceToken);
-            /*
-            if (deviceToken == null || deviceToken.isEmpty()) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User DeviceToken is not found");
-            }
-             */
 
             // FcmRequestDto 생성
             FcmRequestDto fcmRequest = FcmRequestDto.builder()
                     .fcmToken(deviceToken)
-                    .title("AI Result Notification")
-                    .body(FcmRequestDto.Body.builder()
+                    .notification(FcmRequestDto.Notification.builder()
+                            .title("우리 앱 이름")
+                            .body(result + "에 대한 알림이 도착했습니다!")
+                            .build())
+                    .data(FcmRequestDto.Data.builder()
                             .recordIdx(recordIdx)
                             .result(result)
                             .isHuman(isHuman)
                             .text(text)
                             .build())
                     .build();
-
             log.info("FCM Request: {}", fcmRequest);
 
             // FCM 메시지 전송
