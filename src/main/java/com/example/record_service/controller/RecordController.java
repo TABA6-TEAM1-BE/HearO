@@ -8,11 +8,15 @@ import feign.FeignException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.*;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.Enumeration;
 import java.util.List;
@@ -45,18 +49,39 @@ public class RecordController {
 
     // 음성파일 백앤드에서 받아서 recordIdx, time 저장 후 ai 넘겨줌
     @PostMapping("/input")
-    public ResponseEntity<?> fileInput(@RequestHeader("X-User-Idx") String idx, @RequestParam("file") MultipartFile file, HttpServletRequest request) {
+    public ResponseEntity<String> fileInput(@RequestHeader("X-User-Idx") String idx, @RequestParam("file") MultipartFile file) {
         log.info("[FileInput] Received X-User-Sub header: {}", idx);
 
-        // 로그: 모든 헤더 출력
-        Enumeration<String> headerNames = request.getHeaderNames();
-        while (headerNames.hasMoreElements()) {
-            String headerName = headerNames.nextElement();
-            log.info("Header: {} = {}", headerName, request.getHeader(headerName));
-        }
-
         try {
-            return recordService.fileInput(idx, file);
+            ResponseEntity<Record> responseEntity = recordService.fileInput(idx, file);
+            Record record = responseEntity.getBody();
+            String recordIdx = record.getRecordIdx();
+
+// RestTemplate
+            String url = "http://ai-server:8000/predict/";
+            RestTemplate restTemplate = new RestTemplate();
+
+// MultipartFile을 File로 변환
+            File tempFile = File.createTempFile("upload-", file.getOriginalFilename());
+            file.transferTo(tempFile);
+
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("file", new FileSystemResource(tempFile)); // File로 변환된 tempFile 추가
+            body.add("recordIdx", recordIdx);
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+            ResponseEntity<String> response = restTemplate.postForEntity(url, requestEntity, String.class);
+
+// 임시 파일 삭제
+            if (tempFile.exists()) {
+                tempFile.delete();
+            }
+
+            return response;
+
         } catch (Exception e) {
             log.error("Error processing file input: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An error occurred while processing the file.");
