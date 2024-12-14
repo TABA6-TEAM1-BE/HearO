@@ -17,7 +17,7 @@ public class FirebaseConfig {
     public void initialize() {
         try {
             FileInputStream serviceAccount =
-                    new FileInputStream("./src/main/resources/firebase/taba-firebase-adminsdk.json");
+                    new FileInputStream("./src/main/resources/firebase/taba-firebase-admin-sdk.json");
 
             FirebaseOptions options = new FirebaseOptions.Builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
