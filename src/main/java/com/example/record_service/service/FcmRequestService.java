@@ -20,16 +20,23 @@ public class FcmRequestService {
     private final ObjectMapper objectMapper;
 
     public String sendMessage(FcmRequestDto requestDto) throws JsonProcessingException, FirebaseMessagingException {
-        // FcmRequestDto.Body -> json으로 변환
-        String jsonBody = objectMapper.writeValueAsString(requestDto.getBody());
-        log.info("Before: {}", requestDto.getBody());
-        log.info("FcmRequest Body: {}", jsonBody);
+        // FCM 메시지 data 구성 -> json 변환
+        String dataJson = objectMapper.writeValueAsString(requestDto.getData());
+        log.info("Before: {}", requestDto.getData());
+        log.info("FcmRequest Body: {}", dataJson);
 
         // FCM 메시지 생성
+        FcmRequestDto.Data data = requestDto.getData();
         Message message = Message.builder()
                 .setToken(requestDto.getFcmToken())
-                .putData("title", requestDto.getTitle())
-                .putData("body", jsonBody) // json 형식으로 전송
+                .setNotification(Notification.builder()
+                        .setTitle(requestDto.getNotification().getTitle())
+                        .setBody(requestDto.getNotification().getBody())
+                        .build())
+                .putData("recordIdx", data.getRecordIdx())
+                .putData("result", data.getResult())
+                .putData("isHuman", String.valueOf(data.getIsHuman())) // Boolean 값을 문자열로 변환
+                .putData("text", data.getText())
                 .build();
         log.info("Message: {}", message);
 
