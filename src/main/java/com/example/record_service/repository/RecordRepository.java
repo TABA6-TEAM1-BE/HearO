@@ -18,5 +18,5 @@ public interface RecordRepository extends MongoRepository<Record, String> {
     public List<Record> findAllByUserIdxAndCheckedIsFalse(String userIdx);
 
     // 해당 날짜의 deviceType 별로 Record 조회
-    public List<Record> findAllByUserIdxAndDeviceTypeAndTimeBetween(String userIdx, String deviceType, LocalDateTime startDate, LocalDateTime endDate);
+    public List<Record> findAllByUserIdxAndTimeBetween(String userIdx, LocalDateTime startDate, LocalDateTime endDate);
 }
