@@ -104,6 +104,8 @@ public class RecordService {
       return recordRepository.findByRecordIdx(recordIdx);
     };
 
+
+
     // checked 가 false 인 Record 반환
     public ResponseEntity<?> getUncheckedRecordsByUsername(String userIdx) {
         try {
@@ -121,18 +123,18 @@ public class RecordService {
         }
     }
 
-    // 주어진 날짜에서 deviceType 별로 Record 반환
-    public ResponseEntity<?> getRecordsByDeviceTypeAndDate(String userIdx, String deviceType, LocalDate date) {
+    // 주어진 날짜의 Record 반환
+    public ResponseEntity<?> getRecordsByDeviceTypeAndDate(String userIdx, LocalDate date) {
         try {
             // 날짜의 시작 시간과 종료 시간 계산
             LocalDateTime startDate = date.atStartOfDay(); // 00:00:00
             LocalDateTime endDate = startDate.plusDays(1); // 다음 날 00:00:00
 
-            List<Record> records = recordRepository.findAllByUserIdxAndDeviceTypeAndTimeBetween(userIdx, deviceType, startDate, endDate);
+            List<Record> records = recordRepository.findAllByUserIdxAndTimeBetween(userIdx, startDate, endDate);
             log.info("Records by deviceType and date: {}", records);
 
             if (records.isEmpty()) {
-                return ResponseEntity.status(404).body("요청 실패: " + deviceType + "에 대한 Record가 존재하지 않습니다. 날짜: " + date);
+                return ResponseEntity.status(404).body("요청 실패: " + date + "에 대한 Record가 존재하지 않습니다.");
             }
 
             return ResponseEntity.ok(records);
@@ -143,9 +145,10 @@ public class RecordService {
     }
 
     // 클라이언트가 알림 확인 시 checked 상태 업데이트
-    public ResponseEntity<?> updateCheckedStatus(String id) {
+    public ResponseEntity<?> updateCheckedStatus(String recordIdx) {
+
         try {
-            Optional<Record> recordOptional = recordRepository.findById(id);
+            Optional<Record> recordOptional = recordRepository.findByRecordIdx(recordIdx);
 
             if (recordOptional.isPresent()) {
                 Record record = recordOptional.get();
@@ -153,7 +156,7 @@ public class RecordService {
                 recordRepository.save(record);
                 return ResponseEntity.ok(record);
             }
-            return ResponseEntity.status(404).body("요청 실패: 해당 Record가 존재하지 않습니다.: " + id);
+            return ResponseEntity.status(404).body("요청 실패: 해당 Record가 존재하지 않습니다.: " + recordIdx);
         } catch (Exception e) {
             log.error("Error while updating checked status: {}", e.getMessage());
             return ResponseEntity.status(500).body("서버 에러: Checked 상태를 업데이트하는 중 문제가 발생했습니다.");
