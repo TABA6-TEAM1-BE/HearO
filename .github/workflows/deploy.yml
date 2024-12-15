@@ -2,7 +2,7 @@ name: CI/CD for ApiGateway
 
 on:
   pull_request:
-    types:
+    types: 
       - closed
     branches: [ "main" ]
 
