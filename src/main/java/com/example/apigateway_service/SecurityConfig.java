@@ -10,6 +10,9 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @Configuration
 @EnableWebSecurity
@@ -22,6 +25,7 @@ public class SecurityConfig {
         return httpSecurity.httpBasic((hp)->hp.disable())
                 // REST API이므로 basic auth 및 csrf 보안을 사용하지 않음
                 .csrf((cs)->cs.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 // JWT를 사용하기 때문에 세션을 사용하지 않음
                 .sessionManagement((sm)->sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((ahr)->ahr
@@ -48,5 +52,19 @@ public class SecurityConfig {
     public PasswordEncoder passwordEncoder() {
         // BCrypt Encoder 사용
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+    }
+
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.addAllowedOriginPattern("*"); // 모든 도메인 허용 (보안 고려 필요)
+        configuration.addAllowedMethod("*"); // 모든 HTTP 메서드 허용
+        configuration.addAllowedHeader("*"); // 모든 헤더 허용
+        configuration.setAllowCredentials(true); // 자격 증명 허용 (쿠키, Authorization 헤더 등)
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
