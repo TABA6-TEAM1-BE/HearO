@@ -2,7 +2,7 @@ name: CI/CD for ApiGateway
 
 on:
   pull_request:
-    types:
+    types: 
       - closed
     branches: [ "main" ]
 
@@ -69,3 +69,4 @@ jobs:
             sudo docker-compose rm -fs gatewayservice
             sudo docker-compose up -d gatewayservice
             sudo docker image prune -f
+
