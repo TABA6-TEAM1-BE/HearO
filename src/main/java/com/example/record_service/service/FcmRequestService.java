@@ -27,6 +27,8 @@ public class FcmRequestService {
 
         // FCM 메시지 생성
         FcmRequestDto.Data data = requestDto.getData();
+        String text = data.getText() == null ? "null" : data.getText(); // null 처리
+
         Message message = Message.builder()
                 .setToken(requestDto.getFcmToken())
                 .setNotification(Notification.builder()
@@ -36,7 +38,7 @@ public class FcmRequestService {
                 .putData("recordIdx", data.getRecordIdx())
                 .putData("result", data.getResult())
                 .putData("isHuman", String.valueOf(data.getIsHuman())) // Boolean 값을 문자열로 변환
-                .putData("text", data.getText())
+                .putData("text", text) // null을 문자열로 처리
                 .build();
         log.info("Message: {}", message);
 
@@ -46,5 +48,6 @@ public class FcmRequestService {
 
         return response;
     }
+
 }
 
