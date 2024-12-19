@@ -1,5 +1,6 @@
 package com.example.record_service.service;
 
+import com.example.record_service.dto.ResponseRecordDto;
 import com.example.record_service.entity.Record;
 import com.example.record_service.entity.RedisMember;
 import com.example.record_service.repository.RecordRepository;
@@ -130,7 +131,8 @@ public class RecordService {
             LocalDateTime startDate = date.atStartOfDay(); // 00:00:00
             LocalDateTime endDate = startDate.plusDays(1); // 다음 날 00:00:00
 
-            List<Record> records = recordRepository.findAllByUserIdxAndTimeBetween(userIdx, startDate, endDate);
+//            List<Record> records = recordRepository.findAllByUserIdxAndTimeBetween(userIdx, startDate, endDate);
+            List<ResponseRecordDto> records = recordRepository.findAllByUserIdxAndTimeBetween(userIdx, startDate, endDate).stream().map(i->new ResponseRecordDto(i.getDeviceType(),i.getText(),i.getResultTime())).toList();
             log.info("Records by deviceType and date: {}", records);
 
             if (records.isEmpty()) {
