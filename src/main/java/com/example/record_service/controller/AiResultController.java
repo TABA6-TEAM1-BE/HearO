@@ -98,7 +98,7 @@ public class AiResultController {
                 FcmRequestDto fcmRequest = FcmRequestDto.builder()
                         .fcmToken(deviceToken)
                         .notification(FcmRequestDto.Notification.builder()
-                                .title("우리 앱 이름")
+                                .title("HereO")
                                 .body(result + "에 대한 알림이 도착했습니다!")
                                 .build())
                         .data(FcmRequestDto.Data.builder()
