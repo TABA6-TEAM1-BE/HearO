@@ -12,5 +12,5 @@ public class ResponseRecordDto {
 
     private String text = null;
 
-    private LocalDateTime resultTime;
+    private String resultTime;
 }
