@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 
@@ -131,8 +132,9 @@ public class RecordService {
             LocalDateTime startDate = date.atStartOfDay(); // 00:00:00
             LocalDateTime endDate = startDate.plusDays(1); // 다음 날 00:00:00
 
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 //            List<Record> records = recordRepository.findAllByUserIdxAndTimeBetween(userIdx, startDate, endDate);
-            List<ResponseRecordDto> records = recordRepository.findAllByUserIdxAndTimeBetween(userIdx, startDate, endDate).stream().map(i->new ResponseRecordDto(i.getDeviceType(),i.getText(),i.getResultTime())).toList();
+            List<ResponseRecordDto> records = recordRepository.findAllByUserIdxAndTimeBetween(userIdx, startDate, endDate).stream().map(i->new ResponseRecordDto(i.getDeviceType(),i.getText(),i.getResultTime().format(formatter))).toList();
             log.info("Records by deviceType and date: {}", records);
 
             if (records.isEmpty()) {
