@@ -84,6 +84,7 @@ public class AiResultController {
                 // Record 생성 후 저장
                 Record record = new Record(userIdx,resultArr[1],time);
                 record.setRecordIdx(String.valueOf(newrecordIdx)); // 자동 생성된 recordIdx
+                record.setResultTime(LocalDateTime.now());
                 record.setText(text);
                 recordRepository.save(record);
 
