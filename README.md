@@ -1,5 +1,5 @@
-# HearO 
-대충 서비스 로고 사진
+
+![HearO_Logo3](https://github.com/user-attachments/assets/95e3a6f8-de4b-40bc-b2d9-756f4bbfed90)
 
 ## 프로젝트 소개
 청각 장애인들을 위한 실내 소음 감지 및 알림 서비스.(나중에 더 잘 써야 할듯)
