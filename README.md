@@ -54,7 +54,8 @@ HearO는 청각 장애인을 위한 소음 감지 및 알림 서비스를 제공
 
 <br><br>
 ### 2. 데이터 설계
-(ERD 다이어그램 첨부 예정)
+![HearO drawio](https://github.com/user-attachments/assets/2696fe8a-0289-4833-a006-bc50823089e2)
+
 <br><br>
 ### 3. 주요 기술 요소
 - ### MSA 도입
