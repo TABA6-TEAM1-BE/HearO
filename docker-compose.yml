@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  apigateway-service:
+    image: kwjdgh/taba:gatewayservice
+    ports:
+      - "8000:8000"
+    networks:
+      - myboot
+
+  mongodb:
+    image: mongo
+    container_name: mongodbcont
+    networks:
+      - myboot
+    ports:
+      - "27017:27017"
+    restart: always
+    
+
+  redis:
+    image: redis
+    container_name: rediscont
+    networks:
+      - myboot
+    ports:
+      - "6379:6379" # Redis 기본 포트
+    restart: always
+
+  user-service:
+    image: kwjdgh/taba:userservice
+    deploy:
+      replicas: 2
+    depends_on:
+      - mongodb
+      - redis
+      - apigateway-service
+    networks:
+      - myboot
+    environment:
+      - SERVER_PORT=0
+  record-service:
+    image: kwjdgh/taba:recordservice
+    deploy:
+      replicas: 2
+    depends_on:
+      - mongodb
+      - apigateway-service
+    networks:
+      - myboot
+    environment:
+      - SERVER_PORT=0
+  service-discovery:
+    image: kwjdgh/taba:discoveryservice
+    container_name: eurekacont
+    networks:
+      - myboot
+    ports:
+      - "8761:8761"
+        
+  ai-server:
+    image: kwjdgh/taba:aiservice
+    container_name: aicont
+    networks:
+      - myboot
+    ports:
+      - "6000:8000"
+         
+networks:
+  myboot:
+    driver: bridge
